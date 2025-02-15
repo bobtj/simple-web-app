@@ -1,38 +1,35 @@
+be an Edit button (a pencil icon). Click on it to enter the file editing mode.
+Make the Required Changes:
+
+Paste or modify the content of the YAML file as needed. For the AWS CLI installation step, update it as shown below:
+yaml
+Copy
 name: Deploy to AWS S3
 
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the repository
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      # Set up Node.js (optional: used for any Node.js-based tasks, if any)
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-
-      # Install AWS CLI (for interacting with AWS)
-      - name: Install AWS CLI
+      - name: Set up AWS CLI
         run: |
           curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install
 
-      # Configure AWS credentials (you’ll need to set these as GitHub Secrets)
-      - name: Configure AWS CLI
-        run: aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} && \
-             aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} && \
-             aws configure set default.region "ap-southeast-2"  # Change to your AWS region
+      - name: Configure AWS credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ap-southeast-2
 
-      # Sync the website files to AWS S3 bucket (replace with your bucket name)
-      - name: Deploy to AWS S3
-        run: aws s3 sync . s3://tjsimple-web-app --exclude ".git/*" --delete
+      - name: Sync to S3
+        run: aws s3 sync ./ s3://tjsimple-web-app --delete
